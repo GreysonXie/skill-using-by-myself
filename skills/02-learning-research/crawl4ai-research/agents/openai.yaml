@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crawl4AI Research"
+  short_description: "Use Crawl4AI for LLM-ready web extraction."
+  default_prompt: "Use $crawl4ai-research to crawl these pages into clean Markdown and structured notes."

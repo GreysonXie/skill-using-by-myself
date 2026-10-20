@@ -1,0 +1,4 @@
+interface:
+  display_name: "我们的简历工作室"
+  short_description: "按岗位提炼真实经历，保留五套模板，生成可编辑简历与面试表达"
+  default_prompt: "使用 $our-resume，结合我的经历和目标 JD，制作简历并说明修改依据。"
