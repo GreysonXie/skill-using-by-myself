@@ -71,7 +71,7 @@
 
 | Skill | 用途 |
 | --- | --- |
-| [our-resume](our-resume/SKILL.md) | 当前个人简历工作室，整合模板、JD 定制与 PDF 输出 |
+| [our-resume](our-resume/SKILL.md) | 师门简历工作室：JD 门槛与五维打分、中文写作规则、应用统计岗位图谱、三版本投递，五套模板 + 双层自检脚本 |
 | [resume-master](skills/05-career-resume/resume-master) | 直接编写可编辑 HTML 简历并导出 PDF |
 | [resumify](skills/05-career-resume/resumify) | 把经历改写成简历和面试表达 |
 

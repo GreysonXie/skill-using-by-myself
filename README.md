@@ -4,7 +4,7 @@
 
 | Skill | 用途 | 使用说明 |
 | --- | --- | --- |
-| [our-resume](our-resume/SKILL.md) | 按 JD 提炼真实经历、调整简历布局，支持五套模板与 HTML/PDF 输出 | [安装与使用](our-resume/README.md) |
+| [our-resume](our-resume/SKILL.md) | 师门简历工作室：JD 门槛判断与五维打分、中文写作规则、8 个统计方向图谱、三版本投递，五套模板 + 内容/ATS 双层自检脚本 | [安装与使用](our-resume/README.md) |
 
 ## 外部 Skill 目录
 

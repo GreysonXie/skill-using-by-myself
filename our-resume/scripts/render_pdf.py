@@ -44,6 +44,15 @@ def _find_chrome() -> Path | None:
             candidates.append(
                 Path(program_files_x86) / "Google/Chrome/Application/chrome.exe"
             )
+        # 用户级安装（默认位置，最常见）：Chrome 与 Edge 都只装在这里
+        local_appdata = os.environ.get("LOCALAPPDATA")
+        if local_appdata:
+            candidates.append(
+                Path(local_appdata) / "Google/Chrome/Application/chrome.exe"
+            )
+            candidates.append(
+                Path(local_appdata) / "Microsoft/Edge/Application/msedge.exe"
+            )
 
     for candidate in candidates:
         if candidate.exists():
