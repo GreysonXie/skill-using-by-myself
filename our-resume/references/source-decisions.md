@@ -56,3 +56,32 @@ PDF 为扫描图片，按页渲染后浏览，关键规则页放大核对。会�
 9. 新增示例：数据分析与银行风控两份 JD、证据矩阵模板、投递记录 CSV。
 10. 五套视觉模板保持不变——现有版式已通过用户验收，不重做设计。
 11. 修复 `scripts/render_pdf.py` 的 Chrome 定位：原实现只查 `ProgramFiles` 与 PATH，Chrome 装在用户目录（`%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe`，Windows 默认位置）时会直接报 "Chrome not found"。v2 增加了用户级 Chrome 与 Edge 两个候选路径。
+
+## 五、附录：两个上游项目的拆解要点
+
+维护脚本里的词表、阈值或权重时，先看这一节，避免改回已被验证过的问题。
+
+### Resume-Matcher（srbhr，FastAPI + Next.js + SQLite 自托管应用）
+
+| 机制 | 上游位置 | 我们怎么用 |
+| --- | --- | --- |
+| ATS 五维打分（纯代码，不调模型） | `apps/backend/app/services/ats.py` | 关键词 40% / 技能覆盖 20% / 标题匹配 15% / 模块完整 15% / 日期一致 10%，不可评估维度权重重分配 → 我们只取"关键词覆盖 + 文档完整"两项落进 `check_resume.py`，不对外报"ATS 分" |
+| 写作规则可判定化 | `services/writing_quality.py` | 弱开头（HARD −40）、破折号、第一人称、AI 套话、单条过长、无指标（−5）、重复开头（−10）→ `check_resume.py` 的 HARD/SOFT 分级与扣分权重 |
+| 改写事实保真 | 同文件 `fact_violations()` | 改写前后对比数字、术语、技能集合，禁止新增或丢失 → `--against` |
+| 两轮写作打磨 | `.claude/skills/resume-matcher/SKILL.md` 第 6 步 | 先按 rubric 批判，再只改违规句，评分必须上升 → 主流程第 8 步 |
+| ATS 解析回环 | `services/ats_parse/` | 用 pdfminer 把 PDF 读回来查阅读顺序与字段丢失 → `check_pdf.py` 的文本层检查 |
+| 页数优先于视觉 | `services/page_fit.py` | 超页压内容不压字号 → `ats-and-layout.md` 的页数策略 |
+
+### ai-job-search（ai-job-search-dev，Claude Code 求职框架）
+
+| 机制 | 上游位置 | 我们怎么用 |
+| --- | --- | --- |
+| 门槛先于打分 | `.claude/skills/job-application-assistant/04-job-evaluation.md` | 资格 / 语言 / 地点物流为硬门槛，不过不打分不写材料 → `jd-scoring.md` 三道门槛 |
+| 相关性加权删减 | `05-cv-templates.md`「Relevance-weighted cutting」 | 按相关性 / 是否重复 / 叙事负荷给每行打分，先砍最低分 → `ats-and-layout.md` |
+| 页预算与进行中学位 | 同文件「Page Budget」「In-progress qualifications」 | 各模块条目上限；在读学位必须写明，否则被读成已毕业 → 写作规则第 7 节 |
+| ATS 日期 ASCII 区间 | 同文件「Date fields must be ASCII ranges」 | `2016–2024` 会被部分解析器忽略 → `check_resume.py` / `check_pdf.py` 的日期破折号检查 |
+| 交付自检阈值 | `tools/verify_layout.py`、`tools/verify_pdf.py` | 版心空洞上限、末页过薄、页底孤立标题的判定方式 → `check_pdf.py` 的 `MAX_GAP_PT=100`、`LAST_PAGE_MIN_FILL=0.60`、页脚带过滤 |
+| 面试回溯测试 | `03-writing-style.md`「interview backtrack test」 | 「能否被追问三层而不改口」作为美化与造假的分界 → 写作规则第 10 节 + `delivery-and-tracker.md` 三层追问 |
+
+上游未采纳的部分：Resume-Matcher 的 Web 应用 / 数据库 / MCP server / 模型调用；ai-job-search 的招聘站抓取、批量代投、Gmail/Notion 同步、LaTeX 模板、丹麦站点 CLI。校招平台的账号风控与误投代价决定了这两类能力不适合移植。
+
